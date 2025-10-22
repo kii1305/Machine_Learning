@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Prediksi Kelulusan Mahasiswa</title>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #56ccf2, #2f80ed);
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #333;
+      }
+
+      .container {
+        background: white;
+        padding: 30px 40px;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        width: 360px;
+        text-align: center;
+      }
+
+      h2 {
+        margin-bottom: 10px;
+        color: #2f80ed;
+      }
+
+      p.subtitle {
+        margin-top: 0;
+        font-size: 14px;
+        color: #777;
+      }
+
+      form {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      input {
+        margin: 6px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: 0.3s;
+      }
+
+      input:focus {
+        border-color: #2f80ed;
+        box-shadow: 0 0 4px rgba(47, 128, 237, 0.5);
+      }
+
+      button {
+        background: #2f80ed;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 15px;
+        margin-top: 12px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background: #1c64d1;
+      }
+
+      .result {
+        margin-top: 25px;
+        padding: 15px;
+        background: #f3f9ff;
+        border-radius: 10px;
+        font-weight: 500;
+      }
+
+      .success {
+        color: #2ecc71;
+      }
+
+      .fail {
+        color: #e74c3c;
+      }
+
+      /* Progress bar probabilitas */
+      .progress-bar {
+        width: 100%;
+        height: 10px;
+        background: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .progress-fill {
+        height: 10px;
+        background: #2ecc71;
+        width: 0%;
+        transition: width 1s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Prediksi Kelulusan</h2>
+      <p class="subtitle">Masukkan data mahasiswa di bawah ini</p>
+
+      <form action="/predict" method="post">
+        <input type="number" step="any" name="IPK" placeholder="IPK" required />
+        <input
+          type="number"
+          step="any"
+          name="Jumlah_Absensi"
+          placeholder="Jumlah Absensi"
+          required
+        />
+        <input
+          type="number"
+          step="any"
+          name="Waktu_Belajar_Jam"
+          placeholder="Waktu Belajar (Jam)"
+          required
+        />
+        <input
+          type="number"
+          step="any"
+          name="Rasio_Absensi"
+          placeholder="Rasio Absensi"
+          required
+        />
+        <input
+          type="number"
+          step="any"
+          name="IPK_x_Study"
+          placeholder="IPK x Study"
+          required
+        />
+        <button type="submit">Prediksi</button>
+      </form>
+
+      {% if prediction_text %}
+      <div class="result">
+        {% if "Lulus" in prediction_text %}
+        <p class="success">{{ prediction_text }}</p>
+        {% else %}
+        <p class="fail">{{ prediction_text }}</p>
+        {% endif %} {% if "Probabilitas" in prediction_text %}
+        <div class="progress-bar">
+          {% set persen = 0 %} {% if 'Probabilitas' in prediction_text %} {% set
+          persen = prediction_text.split(':')[-1].replace('%','').strip() %} {%
+          endif %}
+
+          <div class="progress">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              data-width="{{ persen }}"
+            ></div>
+          </div>
+
+          <script>
+            // Ambil data-width dari atribut, lalu set style-nya pakai JS
+            const fill = document.getElementById("progressFill");
+            if (fill) {
+              fill.style.width = fill.dataset.width + "%";
+            }
+          </script>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <script>
+      // Efek animasi progress bar
+      const fillEl = document.getElementById("progressFill");
+      if (fillEl) {
+        const width = fillEl.style.width;
+        fillEl.style.width = "0%";
+        setTimeout(() => {
+          fillEl.style.width = width;
+        }, 200);
+      }
+    </script>
+  </body>
+</html>
